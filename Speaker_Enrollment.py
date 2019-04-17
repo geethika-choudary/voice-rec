@@ -53,7 +53,7 @@ def upload_file():
             os.rename('./audio_sources/' + filename, './audio_sources/' + replace_filename)
             
             audio_split(replace_filename)
-            training_result = model_train()
+            training_result = model_train(replace_filename)
             responseJson = {}
             appurl = request.url.split("/upload")
 

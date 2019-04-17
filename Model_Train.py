@@ -10,9 +10,10 @@ import wave,struct
 warnings.filterwarnings("ignore")
 
 
-def model_train():
+def model_train(rfname):
     source   = "./uploads/"   
     dest = "./Speakers_models/"
+    audiosegment_splitcounter = 15
     #train_file = "trainingDataPath.txt"        
     #file_paths = open(train_file,'r')
     count = 1
@@ -20,31 +21,30 @@ def model_train():
     """for path in file_paths:    
         path = path.strip()   
         print ("This is path",path)"""
-    for path in os.listdir(source):
-        if path.endswith(".wav"):
-            print(path)
-        # Read the audio
-        sample_rate,audio = read(source + path)
-    
-        # Extract 40 dimensional MFCC & delta MFCC features
-        #vector   = extract_features(audio,sr)
-        vector   = extract_features(audio,sample_rate)
-
-        if features.size == 0:
-            features = vector
-        else:
-            features = np.vstack((features, vector))
+    for i in range(0, audiosegment_splitcounter-1):
+        _fileNameArr = rfname.split(".")
+        tempFileName = _fileNameArr[0] + "_" + str(i) +"."+ _fileNameArr[1]
+        if tempFileName in os.listdir(source):
+            # Read the audio
+            sample_rate,audio = read(source + tempFileName)
+            count = count + 1
+            # Extract 40 dimensional MFCC & delta MFCC features
+            #vector   = extract_features(audio,sr)
+            vector   = extract_features(audio,sample_rate)
+            if features.size == 0:
+                features = vector
+            else:
+                features = np.vstack((features, vector))
         # When features of 15 files of speaker are generated, then train the model   
-        if count == 15:    
-            gmm = GaussianMixture(n_components = 16, covariance_type='diag',n_init = 3)
-            gmm.fit(features)
-            # Dumping the trained gaussian model
-            picklefile = path.split("_")[0]+".gmm"
-            print("****** ", picklefile)
-            print(dest+picklefile)
-            cPickle.dump(gmm,open(dest + picklefile,'wb'))
-            print ('Modeling completed for speaker:',picklefile," with data point = ",features.shape  )  
-            features = np.asarray(())
-            count = 0
-        count = count + 1
+    if count == audiosegment_splitcounter:    
+        gmm = GaussianMixture(n_components = 16, covariance_type='diag',n_init = 3)
+        gmm.fit(features)
+        # Dumping the trained gaussian model
+        picklefile = rfname.split(".")[0].split("_")[0]+".gmm"
+        print("****** ", picklefile)
+        print(dest + picklefile)
+        cPickle.dump(gmm,open(dest + picklefile,'wb'))
+        print ('Modeling completed for speaker:',picklefile," with data point = ",features.shape  )  
+        features = np.asarray(())
+        count = 0
     return "Modelling completed"
