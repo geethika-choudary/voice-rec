@@ -34,7 +34,7 @@ def upload_testfile():
             
             responseJson = {}
             _speakerName = ""
-            _guid = "";
+            _guid = ""
 
             if(_speakerMatch != ""):
                 filenNameArr = _speakerMatch.split("-") #get the name of the speaker
@@ -48,7 +48,7 @@ def upload_testfile():
                             name = _speakerName,
                             guid = _guid
                         )
-            elif(flag == false):
+            elif(flag == False):
                 responseJson = jsonify(
                             status = 200,
                             message = "Match not found",

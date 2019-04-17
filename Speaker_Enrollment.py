@@ -7,7 +7,7 @@ from sklearn import mixture
 from Feature_Extraction import extract_features
 import warnings         
 warnings.filterwarnings("ignore")
-from flask import Flask,redirect,url_for,jsonify,flash,request,render_template
+from flask import Flask,redirect,url_for,jsonify,flash,request,render_template,send_from_directory
 from werkzeug import secure_filename
 from Model_Train import model_train
 from Audiosplit import audio_split,mp3toWav
@@ -42,7 +42,6 @@ def upload_file():
             filename = secure_filename(file.filename)
             guid = str(uuid.uuid1()).replace("-", "")
             replace_filename = str(personname).replace(" ", "") + '-' + str(guid) + '.wav'
-            #replace_filename = str(guid) + '.wav'
 
             if filename.endswith(".mp3"):
                 file.save(os.path.join('audio_sources',secure_filename(file.filename)))
@@ -56,13 +55,15 @@ def upload_file():
             audio_split(replace_filename)
             training_result = model_train()
             responseJson = {}
+            appurl = request.url.split("/upload")
 
             if training_result == "Modelling completed":
                 responseJson = jsonify(
                             status = 200,
                             message = "Enrollment Successful",
                             guid = str(guid),
-                            name = personname
+                            name = personname,
+                            link =  appurl[0] + "/audiofile/" + replace_filename
                         )
             else: 
                 responseJson = jsonify(
@@ -107,7 +108,7 @@ def handle_delete():
         for the_file in os.listdir(inputFolder):
             file_path = os.path.join(inputFolder, the_file)
             try:
-                if the_file.endswith(".wav"):
+                if the_file.endswith(".wav") or the_file.endswith(".gmm"):
                     if os.path.isfile(file_path):
                         os.unlink(file_path)
             except Exception as e:
@@ -124,20 +125,12 @@ def login():
             return redirect(url_for('index'))
     return render_template('delete_login.html', error=error)
 
-class AudioFileObject(object):
-    def __init__(self, name, guid):
-        self.name = name
-        self.guid = guid
 
-class Object:
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__, 
-            sort_keys=True, indent=4)
 
 @app.route('/queryenrolledfiles', methods=['GET'])
 def queryaudiofiles():
     error = None
-    list = []
+    filesArr = []
 
     folder_paths=['./Speakers_models']
     for folder in folder_paths:
@@ -147,18 +140,24 @@ def queryaudiofiles():
                 if the_file.endswith(".gmm"):
                     if os.path.isfile(file_path):
                         fileNameArr = the_file.split(".gmm")[0].split("-")
-                        item = Object()
-                        item.name = fileNameArr[0]
-                        item.guid = fileNameArr[1] 
-                        list.append(item.toJSON())
+                        appurl = request.url.split("/queryenrolledfiles") 
+                        link = appurl[0] + "/audiofile/" + fileNameArr[0] + "-" + fileNameArr[1] + ".wav"
+                        filesArr.append({ "name": fileNameArr[0], "guid": fileNameArr[1], "link" : link })
             except Exception as e:
                 print(e)
-
-    if(len(list) > 0 ):
-        responseJson = jsonify(data = list)
+    print(filesArr)
+    if(len(filesArr) > 0 ):
+        responseJson = jsonify(data = filesArr)
     else:
         responseJson = jsonify(data =  [])
 
     return responseJson
+
+
+@app.route('/audiofile/<path:fname>',methods=['GET','POST'])
+def get_file(fname):
+    return send_from_directory(directory = "./audio_sources", filename = fname)
+
+
 #if __name__ == "__main__":
 #app.run(debug=True)

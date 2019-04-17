@@ -1,9 +1,11 @@
 import os
+import time
 from pydub import AudioSegment
 from pydub.utils import make_chunks
 #from ffprobe import FFProbe
-AudioSegment.ffmpeg = "./env/Lib/site-packages/pydub"
-
+AudioSegment.ffmpeg = ".env/Lib/site-packages/pydub"
+#AudioSegment.converter = "./env/lib/python3.7/site-packages/pydub"
+#AudioSegment.converter = "/usr/local/bin/ffmpeg"
 
 
 #To split a single audio file into 15 different files
@@ -25,5 +27,5 @@ def audio_split(filename):
 def mp3toWav(fname, replace_filename):
         src="./audio_sources/" + fname
         dst="./audio_sources/" + replace_filename
-        sound = AudioSegment.from_mp3(fname)
+        sound = AudioSegment.from_mp3(src)
         sound.export(dst, format="wav")
