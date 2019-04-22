@@ -30,7 +30,7 @@ def upload_testfile():
             filename = secure_filename(file.filename)
             #file.save(os.path.join(os.getcwd()+"/"+app.config['UPLOAD_FOLDER'], filename))
             file.save(os.path.join('test_samples',secure_filename(file.filename)))
-            flag, _speakerMatch = test_sample(filename)
+            flag, _speakerMatch,_confidence = test_sample(filename)
             
             responseJson = {}
             _speakerName = ""
@@ -46,14 +46,16 @@ def upload_testfile():
                             status = 200,
                             message = "Match found",
                             name = _speakerName,
-                            guid = _guid
+                            guid = _guid,
+                            confidence=_confidence
                         )
             elif(flag == False):
                 responseJson = jsonify(
                             status = 200,
                             message = "Match not found",
                             guid = _guid,
-                            speaker = "null"
+                            speaker = "null",
+                            confidence=_confidence
                         )
             else: 
                 responseJson = jsonify(

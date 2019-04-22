@@ -28,17 +28,27 @@ def test_sample(path):
     #Reading the test audio file & extracting features
     sr,audio = read(source + path)
     vector   = extract_features(audio,sr)
+
     
     log_likelihood = np.zeros(len(models)) 
     
     #Checking with each model one by one
+
     for i in range(len(models)):
-        gmm    = models[i]  
+        gmm    = models[i] 
         scores = np.array(gmm.score(vector))
+        print("SCORE====",gmm.score(vector))
         log_likelihood[i] = scores.sum()
     
     winner = np.argmax(log_likelihood)
+    temp=abs(log_likelihood[winner])
+    confidence=100-temp
+    print("The confidence is ",confidence," %")
+    print("****SPEAKERS****",speakers)
+    print("LOG LIKELIHOOD",log_likelihood)
+    print("WINNER",winner)
 
+    
     print("\tDetected as - ", speakers[winner])
     time.sleep(1.0)
 
@@ -49,4 +59,4 @@ def test_sample(path):
         flag = True
         speaker = speakers[winner]
 
-    return flag, speaker
+    return flag, speaker, confidence

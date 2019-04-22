@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/jpmc/Downloads/surendra/today-17th/voice-recognition/env"
+VIRTUAL_ENV="/Users/cb/voice-recognition/voice-recognition/env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
