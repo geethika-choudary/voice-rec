@@ -30,7 +30,7 @@ def upload_testfile():
             filename = secure_filename(file.filename)
             #file.save(os.path.join(os.getcwd()+"/"+app.config['UPLOAD_FOLDER'], filename))
             file.save(os.path.join('test_samples',secure_filename(file.filename)))
-            flag, _speakerMatch,_confidence = test_sample(filename)
+            flag, _speakerMatch, _confidence= test_sample(filename)
             
             responseJson = {}
             _speakerName = ""

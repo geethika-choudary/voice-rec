@@ -45,6 +45,7 @@ def upload_file():
 
             if filename.endswith(".mp3"):
                 file.save(os.path.join('audio_sources',secure_filename(file.filename)))
+                replace_filename = str(personname).replace(" ", "") + '-' + str(guid) + '.mp3'
                 mp3toWav(filename, replace_filename)
             else:
                 file.save(os.path.join('audio_sources',secure_filename(file.filename)))
