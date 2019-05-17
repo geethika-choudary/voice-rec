@@ -26,7 +26,7 @@ def test_sample(path):
     models    = [cPickle.load(open(fname,'rb')) for fname in gmm_files]
     speakers   = [fname.split("/")[-1].split(".gmm")[0] for fname 
               in gmm_files]
-
+    path=path.split(".")[0] + ".wav"
     #Reading the test audio file & extracting features
     sr,audio = read(source + path)
     vector   = extract_features(audio,sr)

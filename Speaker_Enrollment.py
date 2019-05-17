@@ -42,18 +42,19 @@ def upload_file():
             filename = secure_filename(file.filename)
             guid = str(uuid.uuid1()).replace("-", "")
             replace_filename = str(personname).replace(" ", "") + '-' + str(guid) + '.wav'
+            isMP3 = False
 
             if filename.endswith(".mp3"):
+                isMP3 = True
                 file.save(os.path.join('audio_sources',secure_filename(file.filename)))
-                replace_filename = str(personname).replace(" ", "") + '-' + str(guid) + '.mp3'
-                mp3toWav(filename, replace_filename)
+                mp3toWav(filename, replace_filename, "./audio_sources", "./uploads")
             else:
                 file.save(os.path.join('audio_sources',secure_filename(file.filename)))
 
             #rename file name
             os.rename('./audio_sources/' + filename, './audio_sources/' + replace_filename)
             
-            audio_split(replace_filename)
+            audio_split(replace_filename, isMP3)
             training_result = model_train(replace_filename)
             responseJson = {}
             appurl = request.url.split("/upload")

@@ -1,6 +1,7 @@
 import os
 import pickle as cPickle
 import numpy as np
+from Audiosplit import mp3toWav
 from scipy.io.wavfile import read
 from sklearn.mixture import GaussianMixture 
 from Feature_Extraction import extract_features
@@ -29,33 +30,40 @@ def upload_testfile():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             #file.save(os.path.join(os.getcwd()+"/"+app.config['UPLOAD_FOLDER'], filename))
-            file.save(os.path.join('test_samples',secure_filename(file.filename)))
-            flag, _speakerMatch, _confidence= test_sample(filename)
+            #file.save(os.path.join('test_samples',secure_filename(file.filename)))
+            if filename.endswith(".mp3"):
+                file.save(os.path.join('test_samples',secure_filename(file.filename)))
+                mp3toWav(filename, filename.split(".mp3")[0] + ".wav", "./test_samples", "./test_samples")
+            else:
+                file.save(os.path.join('test_samples',secure_filename(file.filename)))
+
+            flag, _speakerMatch, _confidence = test_sample(filename)
             
             responseJson = {}
             _speakerName = ""
             _guid = ""
+            confidenceThreshold = 0.75
 
             if(_speakerMatch != ""):
                 filenNameArr = _speakerMatch.split("-") #get the name of the speaker
                 _speakerName = filenNameArr[0]
                 _guid = filenNameArr[1]
 
-            if(flag == True):
+            if(_confidence > confidenceThreshold):
                 responseJson = jsonify(
                             status = 200,
                             message = "Match found",
                             name = _speakerName,
                             guid = _guid,
-                            confidence=_confidence
+                            confidence = _confidence
                         )
-            elif(flag == False):
+            elif(_confidence < confidenceThreshold):
                 responseJson = jsonify(
                             status = 200,
                             message = "Match not found",
                             guid = _guid,
-                            speaker = "null",
-                            confidence=_confidence
+                            speaker = _speakerName,
+                            confidence = _confidence
                         )
             else: 
                 responseJson = jsonify(

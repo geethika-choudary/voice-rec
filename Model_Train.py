@@ -41,10 +41,10 @@ def model_train(rfname):
         gmm.fit(features)
         # Dumping the trained gaussian model
         picklefile = rfname.split(".")[0].split("_")[0]+".gmm"
-        print("****** ", picklefile)
+        #print("****** ", picklefile)
         print(dest + picklefile)
         cPickle.dump(gmm,open(dest + picklefile,'wb'))
-        print ('Modeling completed for speaker:',picklefile," with data point = ",features.shape  )  
+        print ('**********************************Modeling completed for speaker:',picklefile," with data point = ",features.shape  )  
         features = np.asarray(())
         count = 0
     return "Modelling completed"
