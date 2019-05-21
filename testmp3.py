@@ -14,5 +14,9 @@ AudioSegment.converter = './ffmpeg/ffmpeg'
 #print("****** " ,os.environ)
 subprocess.call([AudioSegment.converter, '-i', 'aryan.mp3', 'output.wav'])
 """
-pipeline = gst.parse_launch("/Users/cb/voice-recognition/voice-recognition/Aryan.wav ! decodebin ! audioconvert !  lame ! filesink location=/Users/cb/voice-recognition/voice-recognition/Aryan.mp3")
-pipeline.set_state(gst.STATE_PLAYING)
+
+
+import subprocess
+retcode = subprocess.call(['sox', "Aryan.mp3", 
+                           '--rate 16k', '--bits 16', '--channels 1', 
+                           "Aryan.wav"])
