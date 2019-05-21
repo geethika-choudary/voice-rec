@@ -17,6 +17,5 @@ subprocess.call([AudioSegment.converter, '-i', 'aryan.mp3', 'output.wav'])
 
 
 import subprocess
-retcode = subprocess.call(['sox', "Aryan.mp3", 
-                           '--rate 16k', '--bits 16', '--channels 1', 
-                           "Aryan.wav"])
+#retcode = subprocess.call(['sox', "Aryan.mp3", '--rate 16k', '--bits 16', '--channels 1', "Aryan.wav"])
+
