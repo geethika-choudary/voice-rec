@@ -4,9 +4,9 @@ from pydub import AudioSegment
 from pydub.utils import make_chunks
 import subprocess
 from pydub.utils import which
-AudioSegment.converter = 'ffmpeg/ffmpeg'
+AudioSegment.converter = './ffmpeg/ffmpeg'
 #from ffprobe import FFProbe
-AudioSegment.ffmpeg = "ffmpeg"
+AudioSegment.ffmpeg = "./ffmpeg"
 #AudioSegment.converter = "./env/lib/python3.6/site-packages/pydub"
 #AudioSegment.converter = "/usr/local/bin/ffmpeg"
 #os.environ["PATH"]+="./env/lib/python3.6/site-packages/ffprobe"
