@@ -22,7 +22,7 @@ def audio_split(filename, isMP3):
     chunks = make_chunks(myaudio, chunk_length_ms) 
     direflaskctory_name=os.path.splitext(filename)[0]
     
-    #*********************#
+    #***********************#
     #Iterating through chunks
     #Export all the individual chunks as wav files into the speaker's directory 
     for i, chunk in enumerate(chunks):
