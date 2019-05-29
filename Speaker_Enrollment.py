@@ -10,12 +10,15 @@ warnings.filterwarnings("ignore")
 from flask import Flask,redirect,url_for,jsonify,flash,request,render_template,send_from_directory
 from werkzeug import secure_filename
 from Model_Train import model_train
-from Audiosplit import audio_split,mp3toWav
+from Audiosplit import audio_split,convertTowav,getWavfile
 from app import app
 import wave, struct
 import uuid
 import json
-from flask import jsonify
+import subprocess
+import glob, sys
+from subprocess import Popen, PIPE
+
 
 UPLOAD_FOLDER = './audio_sources/'
 ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'mp4'])
@@ -23,6 +26,7 @@ ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'mp4'])
 #app = Flask(__name__)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -47,13 +51,14 @@ def upload_file():
             if filename.endswith(".mp3"):
                 isMP3 = True
                 file.save(os.path.join('audio_sources',secure_filename(file.filename)))
-                mp3toWav(filename, replace_filename, "./audio_sources", "./uploads")
+                #mp3toWav(filename, replace_filename, "./audio_sources", "./uploads")
+                getWavfile(8000,1,filename,replace_filename,"./audio_sources/","./audio_sources/")
+
             else:
                 file.save(os.path.join('audio_sources',secure_filename(file.filename)))
 
             #rename file name
-            os.rename('./audio_sources/' + filename, './audio_sources/' + replace_filename)
-            
+            #os.rename('./audio_sources/' + filename, './audio_sources/' + replace_filename)            
             audio_split(replace_filename, isMP3)
             training_result = model_train(replace_filename)
             responseJson = {}
@@ -85,6 +90,7 @@ Person Name: <input type=text name=personname value="john david">
 <input type=submit value=Upload>
 </form>
 '''
+
 @app.route('/logindelete')
 def index():
    return render_template('delete.html')
@@ -99,7 +105,7 @@ def handle_delete():
             for the_file in os.listdir(folder):
                 file_path = os.path.join(folder, the_file)
                 try:
-                    if the_file.endswith(".wav"):
+                    if the_file.endswith(".wav") or the_file.endswith(".mp3"):
                         if os.path.isfile(file_path):
                             os.unlink(file_path)
                 except Exception as e:
@@ -110,7 +116,7 @@ def handle_delete():
         for the_file in os.listdir(inputFolder):
             file_path = os.path.join(inputFolder, the_file)
             try:
-                if the_file.endswith(".wav") or the_file.endswith(".gmm"):
+                if the_file.endswith(".wav") or the_file.endswith(".gmm") or the_file.endswith(".mp3"):
                     if os.path.isfile(file_path):
                         os.unlink(file_path)
             except Exception as e:
@@ -159,6 +165,9 @@ def queryaudiofiles():
 @app.route('/audiofile/<path:fname>',methods=['GET','POST'])
 def get_file(fname):
     return send_from_directory(directory = "./audio_sources", filename = fname)
+
+
+
 
 
 #if __name__ == "__main__":

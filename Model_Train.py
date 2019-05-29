@@ -18,9 +18,6 @@ def model_train(rfname):
     #file_paths = open(train_file,'r')
     count = 1
     features = np.asarray(())
-    """for path in file_paths:    
-        path = path.strip()   
-        print ("This is path",path)"""
     for i in range(0, audiosegment_splitcounter-1):
         _fileNameArr = rfname.split(".")
         tempFileName = _fileNameArr[0] + "_" + str(i) +"."+ _fileNameArr[1]
@@ -41,10 +38,8 @@ def model_train(rfname):
         gmm.fit(features)
         # Dumping the trained gaussian model
         picklefile = rfname.split(".")[0].split("_")[0]+".gmm"
-        #print("****** ", picklefile)
-        print(dest + picklefile)
         cPickle.dump(gmm,open(dest + picklefile,'wb'))
-        print ('**********************************Modeling completed for speaker:',picklefile," with data point = ",features.shape  )  
+        print ('Modeling completed for speaker:',picklefile," with data point = ",features.shape  )  
         features = np.asarray(())
         count = 0
     return "Modelling completed"
