@@ -22,8 +22,6 @@ import glob, sys
 
 #To split a single audio file into 15 different files
 def audio_split(filename, isMP3):
-    envdir_list = [os.curdir] + os.environ["PATH"].split(os.pathsep)
-    print("******************",envdir_list)
     if isMP3:
         myaudio = AudioSegment.from_wav("./audio_sources/" +filename) 
     else:
@@ -40,9 +38,7 @@ def audio_split(filename, isMP3):
         print("exporting", chunk_name)
         chunk.export("./uploads/"+chunk_name, format="wav") 
 
-def mp3toWav(fname, replace_filename, sourceDir, destDir):
-    subprocess.call([AudioSegment.converter, '-i', sourceDir + '/' + fname, destDir + '/' +replace_filename])
-    #AudioSegment.from_mp3(sourceDir + "/" + fname).export(destDir + "/" + replace_filename, format="wav")
+
 
 def convertTowav(sourceDir,dirPath):
     dirPath_new = sourceDir + dirPath

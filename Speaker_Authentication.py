@@ -1,7 +1,7 @@
 import os
 import pickle as cPickle
 import numpy as np
-from Audiosplit import mp3toWav,getWavfile,convertTowav
+from Audiosplit import getWavfile,convertTowav
 from scipy.io.wavfile import read
 from sklearn.mixture import GaussianMixture 
 from Feature_Extraction import extract_features
@@ -31,7 +31,6 @@ def upload_testfile():
             filename = secure_filename(file.filename)
             if filename.endswith(".mp3"):
                 file.save(os.path.join('test_samples',secure_filename(file.filename)))
-                #mp3toWav(filename, filename.split(".mp3")[0] + ".wav", "./test_samples", "./test_samples")
                 replace_filename=filename.split(".")[0] + ".wav"
                 getWavfile(8000,1,filename,replace_filename,"./test_samples/","./test_samples/")
             else:

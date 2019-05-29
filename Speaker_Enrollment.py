@@ -51,7 +51,6 @@ def upload_file():
             if filename.endswith(".mp3"):
                 isMP3 = True
                 file.save(os.path.join('audio_sources',secure_filename(file.filename)))
-                #mp3toWav(filename, replace_filename, "./audio_sources", "./uploads")
                 getWavfile(8000,1,filename,replace_filename,"./audio_sources/","./audio_sources/")
 
             else:
