@@ -51,8 +51,6 @@ def convertTowav(sourceDir,dirPath):
 def getWavfile(samplingRate,channels,filename,replace_filename,sourceDir,destDir):
     files=convertTowav(sourceDir,filename)
     rf=replace_filename
-    #samplingRate=int(argv[2])
-    #channels=int(argv[3])
     for f in files:
         e = destDir + os.path.splitext(rf)[0] +  '.wav'
         wavPath = 'avconv -y -i  ' + '\"' + f + '\"' + ' -ar ' + str(samplingRate) + ' -ac ' + str(channels) + ' '  + e
