@@ -51,5 +51,15 @@ def fun():
 
 
 
+#mp3 to wav conversion using ffmpeg 
+mp3toWav(filename, replace_filename, "./audio_sources", "./uploads")
+
+mp3toWav(filename, filename.split(".mp3")[0] + ".wav", "./test_samples", "./test_samples")
+
+def mp3toWav(fname, replace_filename, sourceDir, destDir):
+    subprocess.call([AudioSegment.converter, '-i', sourceDir + '/' + fname, destDir + '/' +replace_filename])
+AudioSegment.from_mp3(sourceDir + "/" + fname).export(destDir + "/" + replace_filename, format="wav")
+
+
 
 
