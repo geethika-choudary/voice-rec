@@ -18,16 +18,25 @@ import wave, struct
 import uuid
 import json
 import glob, sys
-
+import wave
+import contextlib
 
 #To split a single audio file into 15 different files
-def audio_split(filename, isMP3):
-    if isMP3:
-        myaudio = AudioSegment.from_wav("./audio_sources/" +filename) 
-    else:
-        myaudio = AudioSegment.from_wav("./audio_sources/" +filename) 
+def audio_split(filename, isMP3, sourceDir):
 
-    chunk_length_ms = 4000 
+    #Calculating the length of each chunk depepnding upon the input file
+    with contextlib.closing(wave.open(sourceDir + filename,'r')) as f:
+        frames = f.getnframes()
+        rate = f.getframerate()
+        duration = frames / float(rate)
+    chunk_length_ms=duration/15
+    chunk_length_ms=int(chunk_length_ms)*1000
+
+    if isMP3:
+        myaudio = AudioSegment.from_wav(sourceDir +filename) 
+    else:
+        myaudio = AudioSegment.from_wav(sourceDir +filename) 
+
     chunks = make_chunks(myaudio, chunk_length_ms) 
     direflaskctory_name=os.path.splitext(filename)[0]
     

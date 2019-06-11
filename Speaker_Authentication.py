@@ -15,16 +15,19 @@ from Model_Test import test_sample
 from app import app
 
 #app=Flask(__name__)
-UPLOAD_FOLDER = './test_samples/'
-ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'mp4'])
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 def allowed_file(filename):
+    ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'mp4'])
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 @app.route('/authentication-upload', methods=['GET', 'POST'])
 def upload_testfile():
+    sourceDir  = "test_samples/"   
+    destDir = "Speakers_models/"
+    UPLOAD_FOLDER = './test_samples/'
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     if request.method == 'POST':
         file = request.files['file']
         if file and allowed_file(file.filename):
@@ -36,7 +39,7 @@ def upload_testfile():
             else:
                 file.save(os.path.join('test_samples',secure_filename(file.filename)))
 
-            flag, _speakerMatch, _confidence = test_sample(filename)
+            flag, _speakerMatch, _confidence = test_sample(filename,sourceDir,destDir)
             
             responseJson = {}
             _speakerName = ""

@@ -9,24 +9,28 @@ import warnings
 import wave,struct      
 warnings.filterwarnings("ignore")
 
+import librosa
+import matplotlib.pyplot as plt
+import librosa.display
+from dtw import dtw
+from numpy.linalg import norm
 
-def model_train(rfname):
-    source   = "./uploads/"   
-    dest = "./Speakers_models/"
+
+def model_train(rfname,sourceDir,destDir,):
+    """source   = "./Unknown/"   
+    dest = "./Unknown/"
+    """
     audiosegment_splitcounter = 15
-    #train_file = "trainingDataPath.txt"        
-    #file_paths = open(train_file,'r')
     count = 1
     features = np.asarray(())
     for i in range(0, audiosegment_splitcounter-1):
         _fileNameArr = rfname.split(".")
         tempFileName = _fileNameArr[0] + "_" + str(i) +"."+ _fileNameArr[1]
-        if tempFileName in os.listdir(source):
+        if tempFileName in os.listdir(sourceDir):
             # Read the audio
-            sample_rate,audio = read(source + tempFileName)
+            sample_rate,audio = read(sourceDir + tempFileName)
             count = count + 1
             # Extract 40 dimensional MFCC & delta MFCC features
-            #vector   = extract_features(audio,sr)
             vector   = extract_features(audio,sample_rate)
             if features.size == 0:
                 features = vector
@@ -37,9 +41,27 @@ def model_train(rfname):
         gmm = GaussianMixture(n_components = 16, covariance_type='diag',n_init = 3)
         gmm.fit(features)
         # Dumping the trained gaussian model
-        picklefile = rfname.split(".")[0].split("_")[0]+".gmm"
-        cPickle.dump(gmm,open(dest + picklefile,'wb'))
+        picklefile = rfname.split(".")[0] + ".gmm"
+        cPickle.dump(gmm,open(destDir + picklefile,'wb'))
         print ('Modeling completed for speaker:',picklefile," with data point = ",features.shape  )  
         features = np.asarray(())
         count = 0
+    return "Modelling completed"
+
+def compare_model_train(rfname,sourceDir,destDir,):
+    """source   = "./uploads/"   
+    dest = "./Speakers_models/"
+    """
+
+    features = np.asarray(())
+    y1, sr1 = librosa.load("./Unknown/" + rfname)
+    features = librosa.feature.mfcc(y1,sr1)    
+    gmm = GaussianMixture(n_components = 16, covariance_type='diag',n_init = 3)
+    gmm.fit(features)
+
+    # Dumping the trained gaussian model
+    picklefile = rfname.split(".")[0] + ".gmm"
+    cPickle.dump(gmm,open(destDir + picklefile,'wb'))
+    print ('Modeling completed for speaker:',picklefile," with data point = ",features.shape  )  
+    features = np.asarray(())
     return "Modelling completed"
