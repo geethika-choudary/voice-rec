@@ -9,12 +9,6 @@ import warnings
 import wave,struct      
 warnings.filterwarnings("ignore")
 
-import librosa
-import matplotlib.pyplot as plt
-import librosa.display
-from dtw import dtw
-from numpy.linalg import norm
-
 
 def model_train(rfname,sourceDir,destDir,):
     """source   = "./Unknown/"   
@@ -48,20 +42,3 @@ def model_train(rfname,sourceDir,destDir,):
         count = 0
     return "Modelling completed"
 
-def compare_model_train(rfname,sourceDir,destDir,):
-    """source   = "./uploads/"   
-    dest = "./Speakers_models/"
-    """
-
-    features = np.asarray(())
-    y1, sr1 = librosa.load("./Unknown/" + rfname)
-    features = librosa.feature.mfcc(y1,sr1)    
-    gmm = GaussianMixture(n_components = 16, covariance_type='diag',n_init = 3)
-    gmm.fit(features)
-
-    # Dumping the trained gaussian model
-    picklefile = rfname.split(".")[0] + ".gmm"
-    cPickle.dump(gmm,open(destDir + picklefile,'wb'))
-    print ('Modeling completed for speaker:',picklefile," with data point = ",features.shape  )  
-    features = np.asarray(())
-    return "Modelling completed"

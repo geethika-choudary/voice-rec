@@ -10,11 +10,6 @@ import time
 import sklearn.mixture.gaussian_mixture
 import math
 
-import librosa
-import matplotlib.pyplot as plt
-import librosa.display
-from dtw import dtw
-from numpy.linalg import norm
 
 def test_sample(path,sourceDir,destDir):
     

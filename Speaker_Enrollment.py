@@ -9,7 +9,7 @@ import warnings
 warnings.filterwarnings("ignore")
 from flask import Flask,redirect,url_for,jsonify,flash,request,render_template,send_from_directory
 from werkzeug import secure_filename
-from Model_Train import model_train,compare_model_train
+from Model_Train import model_train
 from Model_Test import test_sample, compare_test
 from Audiosplit import audio_split,convertTowav,getWavfile
 from app import app
