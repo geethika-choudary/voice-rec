@@ -120,10 +120,10 @@ def compare_test(filenames,sourceDir,destDir):
     p1=log_likelihood[0]
     p2=log_likelihood[1]
     if(abs(p1-p2))<=3:
-        compareMatch="Match"
+        compareMatch="Match Found"
         similarityprob_score=1
     else:
-        compareMatch="No match"
+        compareMatch="Match Not Found"
         similarityprob_score=probs[0]
 
     if winner >= 0:

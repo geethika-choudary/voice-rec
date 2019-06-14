@@ -22,8 +22,8 @@ import wave
 import contextlib
 
 #To split a single audio file into 15 different files
-def audio_split(filename, isMP3, sourceDir):
-
+def audio_split(filename, isMP3, sourceDir,chunk_length_ms):
+    """
     #Calculating the length of each chunk depepnding upon the input file
     with contextlib.closing(wave.open(sourceDir + filename,'r')) as f:
         frames = f.getnframes()
@@ -31,6 +31,7 @@ def audio_split(filename, isMP3, sourceDir):
         duration = frames / float(rate)
     chunk_length_ms=duration/15
     chunk_length_ms=int(chunk_length_ms)*1000
+    """
 
     if isMP3:
         myaudio = AudioSegment.from_wav(sourceDir +filename) 

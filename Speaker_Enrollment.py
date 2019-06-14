@@ -37,6 +37,7 @@ def upload_file():
     sourceDir   = "./uploads/"   
     destDir = "./Speakers_models/"
     wavSourceDir = "./audio_sources/"
+    chunk_length_ms = 4000
     if request.method == 'POST':
         file = request.files['file']
         personname = request.form['personname']
@@ -61,7 +62,7 @@ def upload_file():
 
             #rename file name
             #os.rename('./audio_sources/' + filename, './audio_sources/' + replace_filename)            
-            audio_split(replace_filename, isMP3, wavSourceDir)
+            audio_split(replace_filename, isMP3, wavSourceDir,chunk_length_ms)
             training_result = model_train(replace_filename,sourceDir,destDir)
             responseJson = {}
             appurl = request.url.split("/upload")
@@ -176,7 +177,7 @@ def compare_files():
     sourceDir   = "./Unknown/"   
     destDir = "./Unknown/"
     trainSourceDir="./uploads/"
-    
+    chunk_length_ms = 1000
     if request.method == 'POST':
         uploaded_files = request.files.getlist("file[]")
         filenames = []
@@ -204,9 +205,9 @@ def compare_files():
                 #os.rename('./audio_sources/' + filename, './audio_sources/' + replace_filename)            
         print("*******",filenames)
 
-        audio_split(filenames[0], isMP3 , sourceDir)
+        audio_split(filenames[0], isMP3 , sourceDir, chunk_length_ms)
         training_result = model_train(filenames[0],trainSourceDir,destDir)
-        audio_split(filenames[1], isMP3 , sourceDir)
+        audio_split(filenames[1], isMP3 , sourceDir, chunk_length_ms)
         training_result = model_train(filenames[1],trainSourceDir,destDir)
         """
         training_result = compare_model_train(filenames[0],trainSourceDir,destDir)
