@@ -82,3 +82,19 @@ print(duration)
 print(int(chunk_duration))
 
 """
+
+import requests
+
+print('Beginning file download with requests')
+
+url = 'http://127.0.0.1:5000/audiofile/AryanKandimalla-1da9d98c90c311e9a0103c15c2d936f0.wav'  
+filename = url[url.rfind("/")+1:]
+r = requests.get(url)
+
+with open('/Users/cb/voice-recognition/voice-recognition/' + filename, 'wb') as f:  
+    f.write(r.content)
+print("@@@@@",filename)
+# Retrieve HTTP meta-data
+print(r.status_code)  
+print(r.headers['content-type'])  
+print(r.encoding)  

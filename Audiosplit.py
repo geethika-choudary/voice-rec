@@ -20,9 +20,12 @@ import json
 import glob, sys
 import wave
 import contextlib
+import requests
+
 
 #To split a single audio file into 15 different files
 def audio_split(filename, isMP3, sourceDir,chunk_length_ms):
+
     """
     #Calculating the length of each chunk depepnding upon the input file
     with contextlib.closing(wave.open(sourceDir + filename,'r')) as f:
@@ -65,3 +68,22 @@ def getWavfile(samplingRate,channels,filename,replace_filename,sourceDir,destDir
         e = destDir + os.path.splitext(rf)[0] +  '.wav'
         wavPath = 'avconv -y -i  ' + '\"' + f + '\"' + ' -ar ' + str(samplingRate) + ' -ac ' + str(channels) + ' '  + e
         os.system(wavPath)
+
+
+def convertURLToFile(url):
+    print('Beginning file download with requests')
+    #url = 'http://127.0.0.1:5000/audiofile/AryanKandimalla-1da9d98c90c311e9a0103c15c2d936f0.wav'  
+    r = requests.get(url)
+    filename = url[url.rfind("/")+1:]
+    guid = str(uuid.uuid1()).replace("-", "")
+    replace_filename = str(filename.split(".wav")[0]).replace(" ", "") + '-' + str(guid) + '.wav'
+    with open('./Unknown/' + replace_filename, 'wb') as f:  
+        f.write(r.content)
+
+    # Retrieve HTTP meta-data
+    print(r.status_code)  
+    print(r.headers['content-type'])  
+    print(r.encoding)
+
+    return replace_filename
+      

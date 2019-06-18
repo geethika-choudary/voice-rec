@@ -11,7 +11,7 @@ from flask import Flask,redirect,url_for,jsonify,flash,request,render_template,s
 from werkzeug import secure_filename
 from Model_Train import model_train
 from Model_Test import test_sample, compare_test
-from Audiosplit import audio_split,convertTowav,getWavfile
+from Audiosplit import audio_split,convertTowav,getWavfile,convertURLToFile
 from app import app
 import wave, struct
 import uuid
@@ -170,7 +170,7 @@ def get_file(fname):
     return send_from_directory(directory = "./audio_sources", filename = fname)
 
 #To compare two audio files 
-@app.route('/compare', methods=['GET', 'POST'])
+@app.route('/filecompare', methods=['GET', 'POST'])
 def compare_files():
     UPLOAD_FOLDER = './Unknown/'
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -209,10 +209,6 @@ def compare_files():
         training_result = model_train(filenames[0],trainSourceDir,destDir)
         audio_split(filenames[1], isMP3 , sourceDir, chunk_length_ms)
         training_result = model_train(filenames[1],trainSourceDir,destDir)
-        """
-        training_result = compare_model_train(filenames[0],trainSourceDir,destDir)
-        training_result = compare_model_train(filenames[1],trainSourceDir,destDir)
-        """
         responseJson = {}
         appurl = request.url.split("/compare")
 
@@ -258,6 +254,200 @@ def compare_files():
   </body>
 </html>
 '''
+
+@app.route('/urlcompare', methods=['GET', 'POST'])
+def compare_urls():
+    UPLOAD_FOLDER = './Unknown/'
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    sourceDir   = "./Unknown/"   
+    destDir = "./Unknown/"
+    trainSourceDir="./uploads/"
+    chunk_length_ms = 1000
+    if request.method == 'POST':
+
+        uploaded_files=[]
+        urlnames = []
+
+        urlnames.append(request.form['filelink1'])
+        convertedFileName = convertURLToFile(urlnames[0])
+        uploaded_files.append(convertedFileName)
+
+        urlnames.append(request.form['filelink2'])
+        convertedFileName = convertURLToFile(urlnames[1])
+        uploaded_files.append(convertedFileName)
+
+        for filename in uploaded_files:
+            isMP3 = False
+            if filename.endswith(".mp3"):
+                isMP3 = True
+                #file.save(os.path.join('Unknown',secure_filename(file.filename)))
+                #filenames.append(replace_filename)
+                #Convert mp3 to wav and save to audio_sources with appended guid 
+                getWavfile(8000,1,filename,replace_filename,"./Unknown/","./Unknown/")     
+
+        audio_split(uploaded_files[0], isMP3 , sourceDir, chunk_length_ms)
+        training_result = model_train(uploaded_files[0],trainSourceDir,destDir)
+        audio_split(uploaded_files[1], isMP3 , sourceDir, chunk_length_ms)
+        training_result = model_train(uploaded_files[1],trainSourceDir,destDir)
+        responseJson = {}
+        appurl = request.url.split("/compare")
+
+        if training_result == "Modelling completed":
+            print("*********",uploaded_files[1])
+            flag, _similarityProbScore, _compareMatch = compare_test(uploaded_files,sourceDir,destDir)
+            responseJson = {}
+            confidenceThreshold = 0.75
+
+            if(_similarityProbScore == 1):
+                responseJson = jsonify(
+                                status = 200,
+                                message = _compareMatch
+                            )
+
+            else:
+                responseJson = jsonify(
+                                status = 200,
+                                message = _compareMatch,
+                                similarityProbScore =format(_similarityProbScore, '.8f')
+
+                            )
+            
+            return responseJson
+    return '''
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"
+          rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <hr/>
+      <div>
+      <h3>Enter URLs to Compare</h3><br/>
+      <form action="" method="post" enctype="multipart/form-data">
+        <p>URL 1: <input type="text" name="filelink1"><br/><br /></p>
+        <p>URL 2: <input type="text" name="filelink2"><br/><br /></p>
+        <input type="submit" value="Upload" >
+      </form>
+      </div>
+    </div>
+  </body>
+</html>
+'''
+
+@app.route('/mixedcompare', methods=['GET', 'POST'])
+def compare_mixed():
+    UPLOAD_FOLDER = './Unknown/'
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    sourceDir   = "./Unknown/"   
+    destDir = "./Unknown/"
+    trainSourceDir="./uploads/"
+    chunk_length_ms = 1000
+    if request.method == 'POST':
+
+        uploaded_files = []
+        file = request.files['file']
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            guid = str(uuid.uuid1()).replace("-", "")
+            replace_filename = str(filename.split(".wav")[0]).replace(" ", "") + '-' + str(guid) + '.wav'
+            isMP3 = False
+            print("@@@@@@@@",replace_filename)
+
+            if filename.endswith(".mp3"):
+                isMP3 = True
+                file.save(os.path.join('Unknown',secure_filename(file.filename)))
+                uploaded_files.append(replace_filename)
+                #Convert mp3 to wav and save to audio_sources with appended guid 
+                getWavfile(8000,1,filename,replace_filename,"./Unknown/","./Unknown/")
+
+            else:
+                file.save(os.path.join('Unknown',secure_filename(file.filename)))
+                uploaded_files.append(replace_filename)
+                #Save the uploaded wav file to audio_sources with appended guid
+                os.rename('./Unknown/' + filename, './Unknown/' + replace_filename)
+
+        urlname = request.form['filelink']
+        convertedFileName = convertURLToFile(urlname)
+        uploaded_files.append(convertedFileName)
+
+        for filename in uploaded_files:
+            isMP3 = False
+            if filename.endswith(".mp3"):
+                isMP3 = True
+                #file.save(os.path.join('Unknown',secure_filename(file.filename)))
+                #filenames.append(replace_filename)
+                #Convert mp3 to wav and save to audio_sources with appended guid 
+                getWavfile(8000,1,filename,replace_filename,"./Unknown/","./Unknown/")
+
+        audio_split(uploaded_files[0], isMP3 , sourceDir, chunk_length_ms)
+        training_result = model_train(uploaded_files[0],trainSourceDir,destDir)
+        audio_split(uploaded_files[1], isMP3 , sourceDir, chunk_length_ms)
+        training_result = model_train(uploaded_files[1],trainSourceDir,destDir)
+        responseJson = {}
+        appurl = request.url.split("/compare")
+
+        if training_result == "Modelling completed":
+            print("*********",uploaded_files[1])
+            flag, _similarityProbScore, _compareMatch = compare_test(uploaded_files,sourceDir,destDir)
+            responseJson = {}
+            confidenceThreshold = 0.75
+
+            if(_similarityProbScore == 1):
+                responseJson = jsonify(
+                                status = 200,
+                                message = _compareMatch
+                            )
+
+            else:
+                responseJson = jsonify(
+                                status = 200,
+                                message = _compareMatch,
+                                similarityProbScore =format(_similarityProbScore, '.8f')
+
+                            )
+            
+            return responseJson
+    return '''
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"
+          rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <hr/>
+      <div>
+      <h3>Enter URL and Upload a file to Compare</h3><br/>
+      <form action="" method="post" enctype="multipart/form-data">
+        <p>URL : <input type="text" name="filelink"><br/></p>
+        <p><input type=file name=file><br />
+        <input type="submit" value="Upload" >
+      </form>
+      </div>
+    </div>
+  </body>
+</html>
+'''
+
+@app.route('/compare', methods=['GET', 'POST'])
+def compare_mode():
+    return render_template('compare.html')
+
+@app.route('/handle_compare', methods=['GET', 'POST'])
+def handle_compare():
+    compareMode = request.form['compareMode']
+    if compareMode=="File Mode":
+        return redirect('/filecompare')
+    elif compareMode=="URL Mode":
+        return redirect('/urlcompare')
+    else:
+        return redirect('/mixedcompare')
+    return "Error: Choose the right mode"
+    
 
 #if __name__ == "__main__":
 #app.run(debug=True)
