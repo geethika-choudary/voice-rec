@@ -4,9 +4,14 @@ The flask application package.
 from flask import Flask
 from pydub import AudioSegment
 import os
+from flask_cors import CORS
 
 app = Flask(__name__)
+
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
+
 wsgi_app = app.wsgi_app #Registering with IIS
+
 
 os.environ["PATH"]+="/Users/cb/voice-recognition/voice-recognition/ffmpeg"
 
